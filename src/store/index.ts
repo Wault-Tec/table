@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import dataReducer from './slices/dataSlice';
+import searchDataSlice from './slices/searchDataSlice'
 
 const idProd = process.env.MODE !== 'development'
 
 export const store = configureStore({
     reducer: {
         table: dataReducer,
+        search: searchDataSlice,
     },
     devTools: true
 })

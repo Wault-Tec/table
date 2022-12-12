@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAppDispatch } from './hooks'
 
-import './App.css';
+import './style.scss';
 import Search from './components/Search/Search';
 import EnhancedTable from './components/Table/Table';
 import {fetchData} from './store/slices/dataSlice';

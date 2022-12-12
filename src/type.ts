@@ -9,3 +9,8 @@ export interface Data {
     currency: string,
     total: number
 }
+
+export interface SearchData {
+    column: string,
+    text: string,
+}
