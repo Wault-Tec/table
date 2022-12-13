@@ -31,7 +31,7 @@ import { setSearchData } from '../../store/slices/searchDataSlice'
             text
         }))
     },[column, text])
-    
+
     return (
         <Box sx={{ width: 400, ml: 'auto'}}>
             <FormControl fullWidth>
@@ -58,6 +58,7 @@ import { setSearchData } from '../../store/slices/searchDataSlice'
                 autoComplete="off"
             >
                 <TextField
+                    disabled={column === ''}
                     id="outlined-name"
                     label="Search"
                     value={text}

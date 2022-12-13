@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -19,7 +19,7 @@ import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { visuallyHidden } from '@mui/utils';
 import { useAppSelector } from '../../hooks';
-import { Data } from '../../type';
+import { Data, HeadCell } from '../../type';
 
 
 function createData(
@@ -45,15 +45,6 @@ function createData(
         total
     };
 }
-
-// const rows = [
-//   createData('1234', 'Item 1', 'active', 10, 100, 20, '2019-01-25', 'USD'),
-//   createData('2345', 'Item 2', 'archive', 20, 200, 30, '2022-01-21', 'RUB'),
-//   createData('2345', 'Item 3', 'archive', 30, 300, 30, '2019-01-24', 'RUB'),
-//   createData('2345', 'Item 4', 'archive', 40, 200, 30, '2019-01-22', 'RUB'),
-//   createData('2345', 'Item 5', 'archive', 40, 200, 30, '2019-01-26', 'RUB'),
-//   createData('2345', 'Item 6', 'archive', 40, 200, 30, '2023-02-28', 'RUB'),
-// ];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     const dayjs = require('dayjs')
@@ -84,12 +75,6 @@ function getComparator<Key extends keyof any>(
     return order === 'desc'
         ? (a, b) => descendingComparator(a, b, orderBy)
         : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-interface HeadCell {
-    disablePadding: boolean;
-    id: keyof Data;
-    label: string;
 }
 
 export const headCells: HeadCell[] = [
@@ -240,11 +225,12 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
 }
 
 export default function EnhancedTable() {
-    const [order, setOrder] = React.useState<Order>('desc');
-    const [orderBy, setOrderBy] = React.useState<keyof Data>('delivery_date');
-    const [selected, setSelected] = React.useState<readonly string[]>([]);
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [order, setOrder] = useState<Order>('desc');
+    const [orderBy, setOrderBy] = useState<keyof Data>('delivery_date');
+    const [selected, setSelected] = useState<readonly string[]>([]);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [sortRows, setSortRows] = useState<Data[]>([]);
     const data = useAppSelector((state) => state.table.data)
     const searchData = useAppSelector((state) => state.search.searchData)
 
@@ -256,9 +242,6 @@ export default function EnhancedTable() {
         })
         return rows
     }, [data])
-
-    console.log('searchData', searchData)
-    console.log('rows', rows)
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
@@ -313,16 +296,16 @@ export default function EnhancedTable() {
     const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-    const sortRows = rows.sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    let sortRowsWithSearch;
+    const sortRowsWithTable = rows.sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
     useEffect(() => {
+        setSortRows(sortRowsWithTable)
         if (searchData.column !== '' && searchData.text !== '') {
-            // sortRowsWithSearch = sortRows.filter((item) => item[searchData.column] != searchData.text)
+            //@ts-ignore
+            setSortRows(sortRowsWithTable.filter((item) => item[searchData.column].toString().toLowerCase().includes(searchData.text)))
     }
-    }, [])
+    }, [searchData, rows])
 
-    console.log('sortRows', sortRows)
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -382,11 +365,6 @@ export default function EnhancedTable() {
                                     </TableRow>
                                 );
                             })}
-                            {emptyRows > 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={6} />
-                                </TableRow>
-                            )}
                         </TableBody>
                         <TableFooter>
                             <TableRow key="footer">
@@ -401,6 +379,11 @@ export default function EnhancedTable() {
                         </TableFooter>
                     </Table>
                 </TableContainer>
+                {rows.length > 0 && sortRows.length === 0 && searchData.column !== '' && searchData.text !== '' && (
+                    <Box sx={{color: 'red', ml: 2, mt: 1}}>
+                        Data not found!
+                    </Box>
+                )}
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"

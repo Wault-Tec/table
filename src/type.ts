@@ -10,6 +10,12 @@ export interface Data {
     total: number
 }
 
+export interface HeadCell {
+    disablePadding: boolean;
+    id: keyof Data;
+    label: string;
+}
+
 export interface SearchData {
     column: string,
     text: string,
