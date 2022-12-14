@@ -8,6 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { AlertProps } from 'src/type';
 import Typography from '@mui/material/Typography';
+import { updateRequest } from 'src/api/firebaseApi';
 
 export const AlertDialog = ({ selected, rows }: AlertProps) => {
     const [open, setOpen] = useState(false);
@@ -32,7 +33,9 @@ export const AlertDialog = ({ selected, rows }: AlertProps) => {
     };
 
     const handleApply = () => {
-        console.log('ss')
+        const newRows = rows.filter((item) => !selected.includes(item.id))
+        console.log(newRows)
+        updateRequest(newRows)
     }
 
     return (

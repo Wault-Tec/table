@@ -222,9 +222,11 @@ export const EnhancedTable: React.FC = () => {
 
     const rows = useMemo(() => {
         const rows: Data[] = []
-        data.map((item) => {
-            const { id, name, status, sum, qty, volume, delivery_date, currency } = item
-            rows.push(createData(id, name, status, sum, qty, volume, delivery_date, currency))
+        data.map((array) => {
+            array.map((item) => {
+                const { id, name, status, sum, qty, volume, delivery_date, currency } = item
+                rows.push(createData(id, name, status, sum, qty, volume, delivery_date, currency))
+            })
         })
         return rows
     }, [data])

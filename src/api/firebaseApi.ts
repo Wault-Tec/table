@@ -1,14 +1,16 @@
-import { firestore } from "../firebase";
-import { collection, doc, getDocs, addDoc, deleteDoc, updateDoc  } from "firebase/firestore";
+import { firestore } from "src/firebase";
+import { collection, doc, getDocs, addDoc, deleteDoc, updateDoc, deleteField  } from "firebase/firestore";
 import { Data } from "src/type";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject  } from "firebase/storage";
 
-export const getRequest = async () => {
+export const getRequest = async (endpoint: string) => {
     try {
         let data: Data[] = [];
         const querySnapshot = await getDocs(collection(firestore, "Documents"));
         querySnapshot.forEach((doc) => {
-            data = [...data, ...doc.data().data]
+            if(doc.id === endpoint && doc.data().data) {
+                data = [...data, ...doc.data().data]
+            }
         });
         return data
     } catch (e: any) {
@@ -16,11 +18,13 @@ export const getRequest = async () => {
     }   
 }
 
-
-export const deleteRequest = async (id: keyof Data) => {
+// id: keyof Data
+export const updateRequest = async (data: Data[]) => {
     try {
         const docRef = doc(firestore, "Documents", "documents1")
-        await deleteDoc(docRef);
+        await updateDoc(docRef, {
+            data: [...data]
+        })
     } catch (e: any) {
         throw new Error(e)
     }   
