@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
+import Button from '@mui/material/Button';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableFooter from '@mui/material/TableFooter';
@@ -14,13 +15,10 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { visuallyHidden } from '@mui/utils';
-import { useAppSelector } from '../../hooks';
-import { Data, HeadCell } from '../../type';
-
+import { useAppSelector } from 'src/hooks';
+import { Data, HeadCell, Order, EnhancedTableProps, EnhancedTableToolbarProps } from 'src/type';
+import {AlertDialog} from '../AlertDialog/AlertDialog';
 
 function createData(
     id: string,
@@ -62,8 +60,6 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     }
     return 0;
 }
-
-type Order = 'asc' | 'desc';
 
 function getComparator<Key extends keyof any>(
     order: Order,
@@ -120,15 +116,6 @@ export const headCells: HeadCell[] = [
     },
 ];
 
-interface EnhancedTableProps {
-    numSelected: number;
-    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
-    onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    order: Order;
-    orderBy: string;
-    rowCount: number;
-}
-
 function EnhancedTableHead(props: EnhancedTableProps) {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
         props;
@@ -176,12 +163,8 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     );
 }
 
-interface EnhancedTableToolbarProps {
-    numSelected: number;
-}
-
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-    const { numSelected } = props;
+    const { numSelected, clearSelected } = props;
 
     return (
         <Toolbar
@@ -210,24 +193,27 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
                     id="tableTitle"
                     component="div"
                 >
-                    Items Table
+                    Table Name
                 </Typography>
-            )}
+            )} 
             {numSelected > 0 && (
-                <Tooltip title="Delete">
-                    <IconButton>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
+                    <Button 
+                        variant="outlined"
+                        onClick={() => {
+                            clearSelected()
+                          }}
+                    >
+                        Clear selected
+                    </Button>
             )}
         </Toolbar>
     );
 }
 
-export default function EnhancedTable() {
-    const [order, setOrder] = useState<Order>('desc');
+export const EnhancedTable: React.FC = () => {
+    const [order, setOrder] = useState<Order>('asc');
     const [orderBy, setOrderBy] = useState<keyof Data>('delivery_date');
-    const [selected, setSelected] = useState<readonly string[]>([]);
+    const [selected, setSelected] = useState<string[]>([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [sortRows, setSortRows] = useState<Data[]>([]);
@@ -252,21 +238,26 @@ export default function EnhancedTable() {
         setOrderBy(property);
     };
 
+    const clearSelected = () => {
+        setSelected([])
+    }
+
     const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            const newSelected = rows.map((n) => n.name);
+            const newSelected = sortRows.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
-        setSelected([]);
+
+        clearSelected()
     };
 
-    const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
-        const selectedIndex = selected.indexOf(name);
-        let newSelected: readonly string[] = [];
+    const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
+        const selectedIndex = selected.indexOf(id);
+        let newSelected: string[] = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
+            newSelected = newSelected.concat(selected, id);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -290,27 +281,28 @@ export default function EnhancedTable() {
         setPage(0);
     };
 
-    const isSelected = (name: string) => selected.indexOf(name) !== -1;
+    const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
     // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-    const sortRowsWithTable = rows.sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    let sortRowsWithTable: Data[];
 
     useEffect(() => {
+        sortRowsWithTable = rows.sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
         setSortRows(sortRowsWithTable)
-        if (searchData.column !== '' && searchData.text !== '') {
-            //@ts-ignore
-            setSortRows(sortRowsWithTable.filter((item) => item[searchData.column].toString().toLowerCase().includes(searchData.text)))
-    }
-    }, [searchData, rows])
-
+        
+        const column = searchData.column as keyof Data
+        if (column && searchData.text) {
+            setSortRows(sortRowsWithTable.filter((item) => item[column].toString().toLowerCase().includes(searchData.text.toLowerCase())))
+        }
+    }, [searchData, rows, page, order, orderBy])
 
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} />
+                <EnhancedTableToolbar numSelected={selected.length} clearSelected={clearSelected}/>
                 <TableContainer>
                     <Table
                         sx={{ minWidth: 750 }}
@@ -322,21 +314,21 @@ export default function EnhancedTable() {
                             orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
-                            rowCount={rows.length}
+                            rowCount={sortRows.length}
                         />
                         <TableBody>
                             {sortRows.map((row, index) => {
-                                const isItemSelected = isSelected(row.name);
+                                const isItemSelected = isSelected(row.id);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
                                 return (
                                     <TableRow
                                         hover
-                                        onClick={(event) => handleClick(event, row.name)}
+                                        onClick={(event) => handleClick(event, row.id)}
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
-                                        key={row.name}
+                                        key={row.id}
                                         selected={isItemSelected}
                                     >
                                         <TableCell padding="checkbox">
@@ -365,21 +357,26 @@ export default function EnhancedTable() {
                                     </TableRow>
                                 );
                             })}
+                            {emptyRows > 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={9} />
+                                </TableRow>
+                            )}
                         </TableBody>
                         <TableFooter>
                             <TableRow key="footer">
                                 <TableCell colSpan={headCells.length - 1} />
                                 <TableCell align="left" padding="none" sx={{ fontSize: 'default', py: 2 }}>
-                                    Total qty: {rows.reduce((acc, el) => acc + el.qty, 0)}
+                                    Total qty: {sortRows.reduce((acc, el) => acc + el.qty, 0)}
                                 </TableCell>
                                 <TableCell align="left" padding="none" sx={{ fontSize: 'default', py: 2 }}>
-                                    Total volume: {rows.reduce((acc, el) => acc + el.volume, 0)}
+                                    Total volume: {sortRows.reduce((acc, el) => acc + el.volume, 0)}
                                 </TableCell>
                             </TableRow>
                         </TableFooter>
                     </Table>
                 </TableContainer>
-                {rows.length > 0 && sortRows.length === 0 && searchData.column !== '' && searchData.text !== '' && (
+                {rows.length > 0 && sortRows.length === 0 && !!searchData.column && !!searchData.text && (
                     <Box sx={{color: 'red', ml: 2, mt: 1}}>
                         Data not found!
                     </Box>
@@ -394,6 +391,7 @@ export default function EnhancedTable() {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
+            <AlertDialog selected={selected} rows={rows}/>
         </Box>
     );
 }

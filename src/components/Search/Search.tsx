@@ -5,12 +5,12 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import {headCells} from '../Table/Table';
+import {headCells} from 'src/components/Table/Table';
+import { useAppDispatch } from 'src/hooks';
+import { setSearchData } from 'src/store/slices/searchDataSlice';
 
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { setSearchData } from '../../store/slices/searchDataSlice'
-
- const Search: React.FC = () => {
+ export const Search: React.FC = () => {
+    const dispatch = useAppDispatch();
     const [column, setColumn] = useState('');
     const [text, setText] = useState('');
 
@@ -23,13 +23,13 @@ import { setSearchData } from '../../store/slices/searchDataSlice'
         setText(event.target.value);
     };
 
-    const dispatch = useAppDispatch();
-
     useEffect(() => {
-        dispatch(setSearchData({
-            column,
-            text
-        }))
+        if(column) {
+            dispatch(setSearchData({
+                column,
+                text
+            }))
+        }
     },[column, text])
 
     return (
@@ -68,5 +68,3 @@ import { setSearchData } from '../../store/slices/searchDataSlice'
         </Box>
     );
 }
-
-export default Search

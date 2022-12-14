@@ -1,5 +1,5 @@
 import { createSlice} from '@reduxjs/toolkit';
-import {SearchData} from '../../type';
+import {SearchData} from 'src/type';
 
 type InitialState = {
     searchData: SearchData
@@ -7,7 +7,7 @@ type InitialState = {
 
 const initialState: InitialState = {
     searchData: {
-        column: '',
+        column: null,
         text: ''
     }
 }

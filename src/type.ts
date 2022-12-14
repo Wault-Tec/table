@@ -10,13 +10,34 @@ export interface Data {
     total: number
 }
 
+export interface SearchData {
+    column: keyof Data | null,
+    text: string,
+}
+
 export interface HeadCell {
     disablePadding: boolean;
     id: keyof Data;
     label: string;
 }
 
-export interface SearchData {
-    column: string,
-    text: string,
+export type Order = 'asc' | 'desc';
+
+export interface EnhancedTableProps {
+    numSelected: number;
+    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
+    onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    order: Order;
+    orderBy: string;
+    rowCount: number;
 }
+
+export interface EnhancedTableToolbarProps {
+    numSelected: number,
+    clearSelected: Function
+}
+
+export type AlertProps = {
+    selected: string[],
+    rows: Data[]
+  }

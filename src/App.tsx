@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
-import { useAppDispatch } from './hooks'
+import { useAppDispatch } from 'src/hooks'
+import 'src/style.scss';
+import {Search} from 'src/components/Search/Search';
+import {EnhancedTable} from 'src/components/Table/Table';
+import {fetchData} from 'src/store/slices/dataSlice';
 
-import './style.scss';
-import Search from './components/Search/Search';
-import EnhancedTable from './components/Table/Table';
-import {fetchData} from './store/slices/dataSlice';
-
-const App: React.FC = () => {
+export const App: React.FC = () => {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -21,5 +20,3 @@ const App: React.FC = () => {
         </div>
     );
 }
-
-export default App;
