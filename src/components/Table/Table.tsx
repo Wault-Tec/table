@@ -18,7 +18,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
 import { useAppSelector } from 'src/hooks';
 import { Data, HeadCell, Order, EnhancedTableProps, EnhancedTableToolbarProps } from 'src/type';
-import {AlertDialog} from '../AlertDialog/AlertDialog';
+import { AlertDialog } from '../AlertDialog/AlertDialog';
 
 function createData(
     id: string,
@@ -195,16 +195,16 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
                 >
                     Table Name
                 </Typography>
-            )} 
+            )}
             {numSelected > 0 && (
-                    <Button 
-                        variant="outlined"
-                        onClick={() => {
-                            clearSelected()
-                          }}
-                    >
-                        Clear selected
-                    </Button>
+                <Button
+                    variant="outlined"
+                    onClick={() => {
+                        clearSelected()
+                    }}
+                >
+                    Clear selected
+                </Button>
             )}
         </Toolbar>
     );
@@ -219,16 +219,17 @@ export const EnhancedTable: React.FC = () => {
     const [sortRows, setSortRows] = useState<Data[]>([]);
     const data = useAppSelector((state) => state.table.data)
     const searchData = useAppSelector((state) => state.search.searchData)
-    console.log('data', data)
+
     const rows = useMemo(() => {
         const rows: Data[] = []
-        for(let key in data) {
+        for (let key in data) {
             data[key].map((item) => {
                 const { id, name, status, sum, qty, volume, delivery_date, currency } = item
                 rows.push(createData(id, name, status, sum, qty, volume, delivery_date, currency))
             })
         }
-    }, [data])
+        return rows
+    }, [data, rowsPerPage])
 
 
     const handleRequestSort = (
@@ -287,24 +288,32 @@ export const EnhancedTable: React.FC = () => {
 
     // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
     let sortRowsWithTable: Data[];
+    let sortRowsWithSearch: Data[];
 
     useEffect(() => {
-        sortRowsWithTable = rows.sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-        setSortRows(sortRowsWithTable)
-        
-        const column = searchData.column as keyof Data
-        if (column && searchData.text) {
-            setSortRows(sortRowsWithTable.filter((item) => item[column].toString().toLowerCase().includes(searchData.text.toLowerCase())))
+        if (!searchData.column || !searchData.text) {
+            sortRowsWithTable = rows.sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+            setSortRows(sortRowsWithTable)
+        } else {
+            if (searchData.column !== 'all') {
+                const column = searchData.column as keyof Data
+                sortRowsWithSearch = rows.filter((item) => item[column].toString().toLowerCase().includes(searchData.text.toLowerCase()))
+            } else {
+                sortRowsWithSearch = rows.filter((item) => {
+                    return Object.values(item).slice(1).toString().toLowerCase().includes(searchData.text.toLowerCase())
+                })
+            }
+            setSortRows(sortRowsWithSearch)
         }
     }, [searchData, rows, page, order, orderBy])
 
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} clearSelected={clearSelected}/>
+                <EnhancedTableToolbar numSelected={selected.length} clearSelected={clearSelected} />
                 <TableContainer>
                     <Table
                         sx={{ minWidth: 750 }}
@@ -379,7 +388,7 @@ export const EnhancedTable: React.FC = () => {
                     </Table>
                 </TableContainer>
                 {rows.length > 0 && sortRows.length === 0 && !!searchData.column && !!searchData.text && (
-                    <Box sx={{color: 'red', ml: 2, mt: 1}}>
+                    <Box sx={{ color: 'red', ml: 2, mt: 1 }}>
                         Data not found!
                     </Box>
                 )}
@@ -393,7 +402,7 @@ export const EnhancedTable: React.FC = () => {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-            <AlertDialog selected={selected} rows={rows}/>
+            <AlertDialog selected={selected} rows={rows} data={data} />
         </Box>
     );
 }

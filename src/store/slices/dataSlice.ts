@@ -30,15 +30,7 @@ const initialState: InitialState = {
 const dataSlice = createSlice({
     name: 'data',
     initialState,
-    reducers: {
-        // getData(state, action) {
-        //     return state
-        // },
-        // removeData(state, action) {
-
-        //     state.data.filter((item) => item.id !== action.payload)
-        // },
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder.addCase(fetchData.fulfilled, (state, action) => {
             state.data = action.payload

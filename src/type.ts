@@ -15,7 +15,7 @@ export interface StoreData {
 }
 
 export interface SearchData {
-    column: keyof Data | null,
+    column: keyof Data | null | 'all',
     text: string,
 }
 
@@ -43,5 +43,6 @@ export interface EnhancedTableToolbarProps {
 
 export type AlertProps = {
     selected: string[],
-    rows: Data[]
+    rows: Data[],
+    data: StoreData
   }

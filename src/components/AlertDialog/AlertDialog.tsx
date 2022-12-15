@@ -8,12 +8,15 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { AlertProps } from 'src/type';
 import Typography from '@mui/material/Typography';
-import { updateRequest } from 'src/api/firebaseApi';
+import { deleteRequest, setRequest } from 'src/api/firebaseApi';
+import { useAppDispatch } from 'src/hooks';
+import {fetchData} from 'src/store/slices/dataSlice';
 import {Data} from 'src/type';
 
-export const AlertDialog = ({ selected, rows }: AlertProps) => {
+export const AlertDialog = ({ selected, rows, data }: AlertProps) => {
     const [open, setOpen] = useState(false);
-    const [itemsNames, setItemNames] = useState<string[]>([])
+    const [itemsNames, setItemNames] = useState<string[]>([]);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         const names: string[] = [];
@@ -34,80 +37,91 @@ export const AlertDialog = ({ selected, rows }: AlertProps) => {
     };
 
 
-    function randomInteger(min: number, max: number) {
-        // случайное число от min до (max+1)
-        let rand = min + Math.random() * (max + 1 - min);
-        return Math.floor(rand);
-      }
+    // function randomInteger(min: number, max: number) {
+    //     // случайное число от min до (max+1)
+    //     let rand = min + Math.random() * (max + 1 - min);
+    //     return Math.floor(rand);
+    //   }
 
 
-    // const newRows: any = [
+    // const newRows: Data[] = [
     //     {
-    //         id: '24226ac6-da7e-4cb8-8385-6e48ea10c7cb',
-    //         name: 'item28',
+    //         id: 'f1492e01-7789-423b-b775-07c6f86b5a5e',
+    //         name: 'item24',
     //         status: 'active', // {‘active’, ‘archive’}
     //         sum: randomInteger(1,500),
     //         qty: randomInteger(1,500),
     //         volume: randomInteger(1,500), 
-    //         delivery_date: '2022-12-30',
+    //         delivery_date: '2022-12-31',
     //         currency: 'RUB',
+    //         total: 1
     //     },
     //     {
-    //         id: 'a13ebd32-541a-4075-b7e5-3f2f222ad76e',
-    //         name: 'item21',
+    //         id: '165841c2-bf76-4a1a-a8d6-e886e870d7f7',
+    //         name: 'item22',
     //         status: 'archive', // {‘active’, ‘archive’}
     //         sum: randomInteger(1,500),
     //         qty: randomInteger(1,500),
     //         volume: randomInteger(1,500), 
-    //         delivery_date: '2023-02-01',
+    //         delivery_date: '2023-02-11',
     //         currency: 'USD',
+    //         total: 1
     //     },
     //     {
-    //         id: 'c477f774-7098-4197-b082-4e293b98974c',
-    //         name: 'item102',
+    //         id: '8da9fc14-d5ce-4ef9-895b-4b0fb7d93e70',
+    //         name: 'item142',
     //         status: 'active', // {‘active’, ‘archive’}
     //         sum: randomInteger(1,500),
     //         qty: randomInteger(1,500),
     //         volume: randomInteger(1,500), 
-    //         delivery_date: '2023-02-26',
+    //         delivery_date: '2023-02-22',
     //         currency: 'RUB',
+    //         total: 1
     //     },
     //     {
-    //         id: '74096522-9038-4b30-90c2-4ddcf698a13e6',
+    //         id: '6e39fd2e-7c3c-4447-a55c-73c82207d934',
+    //         name: 'item110',
+    //         status: 'active', // {‘active’, ‘archive’}
+    //         sum: randomInteger(1,500),
+    //         qty: randomInteger(1,500),
+    //         volume: randomInteger(1,500), 
+    //         delivery_date: '2023-03-15',
+    //         currency: 'USD',
+    //         total: 1
+    //     },
+    //     {
+    //         id: '4bc68795-bee0-4b3b-adc0-c18c2c251f73',
+    //         name: 'item39',
+    //         status: 'archive', // {‘active’, ‘archive’}
+    //         sum: randomInteger(1,500),
+    //         qty: randomInteger(1,500),
+    //         volume: randomInteger(1,500), 
+    //         delivery_date: '2023-01-10',
+    //         currency: 'RUB',
+    //         total: 1
+    //     },
+    //     {
+    //         id: 'ef961509-be6d-4b2a-87e6-e10cf0f63ff1',
     //         name: 'item13',
     //         status: 'active', // {‘active’, ‘archive’}
     //         sum: randomInteger(1,500),
     //         qty: randomInteger(1,500),
     //         volume: randomInteger(1,500), 
-    //         delivery_date: '2023-03-11',
+    //         delivery_date: '2023-04-25',
     //         currency: 'USD',
-    //     },
-    //     {
-    //         id: 'b6713790-1317-47b0-a180-fc815c00f8e0',
-    //         name: 'item65',
-    //         status: 'archive', // {‘active’, ‘archive’}
-    //         sum: randomInteger(1,500),
-    //         qty: randomInteger(1,500),
-    //         volume: randomInteger(1,500), 
-    //         delivery_date: '2023-01-13',
-    //         currency: 'RUB',
-    //     },
-    //     {
-    //         id: '98370d2a-7b03-45fd-93e7-651fff0122a8',
-    //         name: 'item23',
-    //         status: 'archive', // {‘active’, ‘archive’}
-    //         sum: randomInteger(1,500),
-    //         qty: randomInteger(1,500),
-    //         volume: randomInteger(1,500), 
-    //         delivery_date: '2023-04-17',
-    //         currency: 'USD',
+    //         total: 1
     //     }
     // ]
 
 
+
     const handleApply = () => {
-        // const newRows = rows.filter((item) => !selected.includes(item.id))
-        // updateRequest(newRows)
+        deleteRequest(selected)
+            .then(() => {
+                dispatch(fetchData())
+            })
+
+        setOpen(false);
     }
 
     return (

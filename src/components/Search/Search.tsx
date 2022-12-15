@@ -31,7 +31,7 @@ import { setSearchData } from 'src/store/slices/searchDataSlice';
             }))
         }
     },[column, text])
-
+   
     return (
         <Box sx={{ width: 400, ml: 'auto'}}>
             <FormControl fullWidth>
@@ -43,6 +43,7 @@ import { setSearchData } from 'src/store/slices/searchDataSlice';
                 label="Select column"
                 onChange={handleSelectChange}
                 >
+                    <MenuItem key={'all'} value={'all'}>All</MenuItem>
                     {headCells.map((column) => (
                         <MenuItem key={column.id} value={column.id}>{column.label}</MenuItem>
                     ))}
