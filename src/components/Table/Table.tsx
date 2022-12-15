@@ -219,17 +219,17 @@ export const EnhancedTable: React.FC = () => {
     const [sortRows, setSortRows] = useState<Data[]>([]);
     const data = useAppSelector((state) => state.table.data)
     const searchData = useAppSelector((state) => state.search.searchData)
-
+    console.log('data', data)
     const rows = useMemo(() => {
         const rows: Data[] = []
-        data.map((array) => {
-            array.map((item) => {
+        for(let key in data) {
+            data[key].map((item) => {
                 const { id, name, status, sum, qty, volume, delivery_date, currency } = item
                 rows.push(createData(id, name, status, sum, qty, volume, delivery_date, currency))
             })
-        })
-        return rows
+        }
     }, [data])
+
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,

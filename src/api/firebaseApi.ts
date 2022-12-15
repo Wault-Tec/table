@@ -21,7 +21,7 @@ export const getRequest = async (endpoint: string) => {
 // id: keyof Data
 export const updateRequest = async (data: Data[]) => {
     try {
-        const docRef = doc(firestore, "Documents", "documents1")
+        const docRef = doc(firestore, "Documents", "documents2")
         await updateDoc(docRef, {
             data: [...data]
         })

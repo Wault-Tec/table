@@ -10,6 +10,10 @@ export interface Data {
     total: number
 }
 
+export interface StoreData {
+    [key: string]: Data[]
+}
+
 export interface SearchData {
     column: keyof Data | null,
     text: string,
