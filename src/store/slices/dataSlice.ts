@@ -2,8 +2,8 @@ import {
     createSlice, 
     createAsyncThunk
 } from '@reduxjs/toolkit';
-import { getRequest } from '../../api/firebaseApi';
-import {Data, StoreData} from '../../type';
+import { getRequest } from 'src/api/firebaseApi';
+import {Data, StoreData} from 'src/type';
 
 export const fetchData = createAsyncThunk<StoreData>(
     'data/fetchData',
