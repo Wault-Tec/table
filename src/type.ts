@@ -1,12 +1,15 @@
-export interface Data {
+export interface ServerData {
     id: string,
     name: string,
-    status: string, // {‘active’, ‘archive’}
+    status: 'active' | 'archive',
     sum: number,
     qty: number,
     volume: number, 
     delivery_date: string,
     currency: string,
+}
+
+export interface Data extends ServerData {
     total: number
 }
 
@@ -44,5 +47,6 @@ export interface EnhancedTableToolbarProps {
 export type AlertProps = {
     selected: string[],
     rows: Data[],
-    data: StoreData
+    data: StoreData,
+    clearSelected: Function
   }

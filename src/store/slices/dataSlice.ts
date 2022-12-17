@@ -1,4 +1,7 @@
-import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import { 
+    createSlice, 
+    createAsyncThunk
+} from '@reduxjs/toolkit';
 import { getRequest } from '../../api/firebaseApi';
 import {Data, StoreData} from '../../type';
 
@@ -37,7 +40,5 @@ const dataSlice = createSlice({
         })
     }
 })
-
-// export const {} = dataSlice.actions;
 
 export default dataSlice.reducer

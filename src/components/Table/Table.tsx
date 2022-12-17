@@ -1,4 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { 
+    useEffect, 
+    useState, 
+    useMemo 
+} from 'react';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -16,32 +20,25 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
-import { useAppSelector } from 'src/hooks';
-import { Data, HeadCell, Order, EnhancedTableProps, EnhancedTableToolbarProps } from 'src/type';
-import { AlertDialog } from '../AlertDialog/AlertDialog';
+import { 
+    useAppSelector, 
+    useAppDispatch 
+} from 'src/hooks';
+import {
+    Data, 
+    ServerData, 
+    HeadCell, 
+    Order, 
+    EnhancedTableProps, 
+    EnhancedTableToolbarProps 
+} from 'src/type';
+import { AlertDialog } from 'src/components/AlertDialog/AlertDialog';
+import {setRequest} from 'src/api/firebaseApi';
+import {fetchData} from 'src/store/slices/dataSlice';
 
-function createData(
-    id: string,
-    name: string,
-    status: string, // {‘active’, ‘archive’}
-    sum: number,
-    qty: number,
-    volume: number,
-    delivery_date: string,
-    currency: string
-): Data {
-    const total = sum + qty;
-    return {
-        id,
-        name,
-        status,
-        sum,
-        qty,
-        volume,
-        delivery_date,
-        currency,
-        total
-    };
+function createData(data: ServerData): Data {
+    const total = data.sum + data.qty;
+    return ({...data, total})
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -217,6 +214,7 @@ export const EnhancedTable: React.FC = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [sortRows, setSortRows] = useState<Data[]>([]);
+    const dispatch = useAppDispatch();
     const data = useAppSelector((state) => state.table.data)
     const searchData = useAppSelector((state) => state.search.searchData)
 
@@ -224,8 +222,7 @@ export const EnhancedTable: React.FC = () => {
         const rows: Data[] = []
         for (let key in data) {
             data[key].map((item) => {
-                const { id, name, status, sum, qty, volume, delivery_date, currency } = item
-                rows.push(createData(id, name, status, sum, qty, volume, delivery_date, currency))
+                rows.push(createData(item))
             })
         }
         return rows
@@ -274,6 +271,10 @@ export const EnhancedTable: React.FC = () => {
 
         setSelected(newSelected);
     };
+
+    const handleUpdateData = () => {
+        setRequest().then(()=>dispatch(fetchData()))
+    }
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -402,7 +403,10 @@ export const EnhancedTable: React.FC = () => {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-            <AlertDialog selected={selected} rows={rows} data={data} />
+            <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                <AlertDialog selected={selected} clearSelected={clearSelected} rows={rows} data={data} />
+                <Button variant="outlined" onClick={handleUpdateData}>Update server data</Button>
+            </Box>
         </Box>
     );
 }

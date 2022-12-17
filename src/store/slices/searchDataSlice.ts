@@ -19,9 +19,6 @@ const dataSlice = createSlice({
         setSearchData(state, action) {
             state.searchData= action.payload
         },
-        // getSearchData(state) {
-        //     return state  
-        // },
     }
 })
 
