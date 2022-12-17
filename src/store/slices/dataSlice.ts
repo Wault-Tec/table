@@ -8,7 +8,7 @@ import {Data, StoreData} from 'src/type';
 import {
     endpoint_1, 
     endpoint_2, 
-    } from 'src/api/firebaseApi';
+} from 'src/api/firebaseApi';
 
 export const fetchData = createAsyncThunk<StoreData>(
     'data/fetchData',

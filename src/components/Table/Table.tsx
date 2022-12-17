@@ -36,7 +36,6 @@ import {
 import { AlertDialog } from 'src/components/AlertDialog/AlertDialog';
 import {setRequest} from 'src/api/firebaseApi';
 import {fetchData} from 'src/store/slices/dataSlice';
-import { setSearchData } from 'src/store/slices/searchDataSlice';
 
 function createData(data: ServerData): Data {
     const total = data.sum + data.qty;
