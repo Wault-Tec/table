@@ -6,11 +6,17 @@ import {
     deleteDoc, 
     setDoc 
 } from "firebase/firestore";
+
 import { 
     Data, 
     StoreData, 
     ServerData 
 } from "src/type";
+
+export const endpoint_1: string = 'documents1';
+export const endpoint_2: string = 'documents2';
+const endpoint_1_dataKey: string = 'data_1';
+const endpoint_2_dataKey: string = 'data_2';
 
 export const getRequest = async (endpoint: string) => {
     try {
@@ -29,14 +35,14 @@ export const getRequest = async (endpoint: string) => {
 export const deleteRequest = async (id: string[], data: StoreData) => {
     let endpoint: string
     try {
-        id.map((id) => {
+        id.forEach((id) => {
             for(let key in data) {
-                data[key].map((item) => {
+                data[key].forEach((item) => {
                     if (item.id === id) {
-                        if(key === 'data_1') {
-                            endpoint = "documents1"
-                        } else if(key === 'data_2') {
-                            endpoint = "documents2"
+                        if(key === endpoint_1_dataKey) {
+                            endpoint = endpoint_1
+                        } else if(key === endpoint_2_dataKey) {
+                            endpoint = endpoint_2
                         }
                     }
                 })
@@ -50,12 +56,13 @@ export const deleteRequest = async (id: string[], data: StoreData) => {
     }
 }
 
+//TODO:  This function need for testing the app
 export const setRequest = async () => {
     const randomInteger = (min: number, max: number) => {
         let rand = min + Math.random() * (max + 1 - min);
         return Math.floor(rand);
       }
-
+//TODO:  Testing data
     const data_1: ServerData[] = [
         {
             id: 'f1492e01-7789-423b-b775-07c6f86b5a5e',
@@ -204,11 +211,11 @@ export const setRequest = async () => {
     try {
         data_1.map((item) => {
            return (async () => {
-            await setDoc(doc(firestore, 'documents1', item.id), item)})()
+            await setDoc(doc(firestore, endpoint_1, item.id), item)})()
         })
         data_2.map((item) => {
             return (async () => {
-             await setDoc(doc(firestore, 'documents2', item.id), item)})()
+             await setDoc(doc(firestore, endpoint_2, item.id), item)})()
          })
     } catch (e: any) {
         throw new Error(e)

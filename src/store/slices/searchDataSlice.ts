@@ -1,4 +1,5 @@
 import { createSlice} from '@reduxjs/toolkit';
+
 import {SearchData} from 'src/type';
 
 type InitialState = {

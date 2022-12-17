@@ -20,6 +20,7 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import { visuallyHidden } from '@mui/utils';
+
 import { 
     useAppSelector, 
     useAppDispatch 
@@ -35,6 +36,7 @@ import {
 import { AlertDialog } from 'src/components/AlertDialog/AlertDialog';
 import {setRequest} from 'src/api/firebaseApi';
 import {fetchData} from 'src/store/slices/dataSlice';
+import { setSearchData } from 'src/store/slices/searchDataSlice';
 
 function createData(data: ServerData): Data {
     const total = data.sum + data.qty;
@@ -214,6 +216,7 @@ export const EnhancedTable: React.FC = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [sortRows, setSortRows] = useState<Data[]>([]);
+    const [sortRowsBySearch, setSortRowsBySearch] = useState<Data[]>([]);
     const dispatch = useAppDispatch();
     const data = useAppSelector((state) => state.table.data)
     const searchData = useAppSelector((state) => state.search.searchData)
@@ -273,7 +276,8 @@ export const EnhancedTable: React.FC = () => {
     };
 
     const handleUpdateData = () => {
-        setRequest().then(()=>dispatch(fetchData()))
+        setRequest()
+            .then(() => dispatch(fetchData()))
     }
 
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -291,23 +295,27 @@ export const EnhancedTable: React.FC = () => {
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-    let sortRowsWithTable: Data[];
-    let sortRowsWithSearch: Data[];
+
+    const getSortRowsByTable = (arr: Data[]): Data[] => {
+        return arr.sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    }
 
     useEffect(() => {
-        if (!searchData.column || !searchData.text) {
-            sortRowsWithTable = rows.sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-            setSortRows(sortRowsWithTable)
+        let sortArr: Data[]
+
+        if (!searchData.column && !searchData.text) {
+            setSortRows(getSortRowsByTable(rows))
         } else {
             if (searchData.column !== 'all') {
                 const column = searchData.column as keyof Data
-                sortRowsWithSearch = rows.filter((item) => item[column].toString().toLowerCase().includes(searchData.text.toLowerCase()))
+                sortArr = rows.filter((item) => item[column].toString().toLowerCase().includes(searchData.text.toLowerCase()))
             } else {
-                sortRowsWithSearch = rows.filter((item) => {
+                sortArr = rows.filter((item) => {
                     return Object.values(item).slice(1).toString().toLowerCase().includes(searchData.text.toLowerCase())
                 })
             }
-            setSortRows(sortRowsWithSearch)
+            setSortRows(getSortRowsByTable(sortArr))
+            setSortRowsBySearch(sortArr)
         }
     }, [searchData, rows, page, order, orderBy])
 
@@ -379,16 +387,26 @@ export const EnhancedTable: React.FC = () => {
                             <TableRow key="footer">
                                 <TableCell colSpan={headCells.length - 1} />
                                 <TableCell align="left" padding="none" sx={{ fontSize: 'default', py: 2 }}>
-                                    Total qty: {sortRows.reduce((acc, el) => acc + el.qty, 0)}
+                                    Total qty: {searchData.text 
+                                        ? 
+                                        sortRowsBySearch.reduce((acc, el) => acc + el.qty, 0) 
+                                        : 
+                                        rows.reduce((acc, el) => acc + el.qty, 0)
+                                    }
                                 </TableCell>
                                 <TableCell align="left" padding="none" sx={{ fontSize: 'default', py: 2 }}>
-                                    Total volume: {sortRows.reduce((acc, el) => acc + el.volume, 0)}
+                                    Total volume: {searchData.text 
+                                        ? 
+                                        sortRowsBySearch.reduce((acc, el) => acc + el.volume, 0) 
+                                        : 
+                                        rows.reduce((acc, el) => acc + el.volume, 0)
+                                    }
                                 </TableCell>
                             </TableRow>
                         </TableFooter>
                     </Table>
                 </TableContainer>
-                {rows.length > 0 && sortRows.length === 0 && !!searchData.column && !!searchData.text && (
+                {rows.length > 0 && sortRows.length === 0 && searchData.column && searchData.text && (
                     <Box sx={{ color: 'red', ml: 2, mt: 1 }}>
                         Data not found!
                     </Box>
@@ -396,17 +414,19 @@ export const EnhancedTable: React.FC = () => {
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
-                    count={rows.length}
+                    count={searchData.text ? sortRowsBySearch.length : rows.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-            <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', gap: 1}}>
                 <AlertDialog selected={selected} clearSelected={clearSelected} rows={rows} data={data} />
+                {/* TODO:  Testing button */}
                 <Button variant="outlined" onClick={handleUpdateData}>Update server data</Button>
             </Box>
         </Box>
     );
 }
+

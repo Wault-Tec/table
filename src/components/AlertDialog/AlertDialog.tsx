@@ -10,6 +10,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Typography from '@mui/material/Typography';
+
 import { AlertProps } from 'src/type';
 import { deleteRequest } from 'src/api/firebaseApi';
 import { useAppDispatch } from 'src/hooks';
@@ -47,7 +48,7 @@ export const AlertDialog = ({ selected, rows, data, clearSelected }: AlertProps)
 
     return (
         <div>
-            <Button variant="outlined" startIcon={<DeleteIcon />} disabled={!!!selected.length} onClick={handleClickOpen}>
+            <Button variant="outlined" startIcon={<DeleteIcon />} disabled={!selected.length} onClick={handleClickOpen}>
                 Annul selected
             </Button>
             <Dialog

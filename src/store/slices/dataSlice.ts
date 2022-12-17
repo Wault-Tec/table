@@ -2,18 +2,23 @@ import {
     createSlice, 
     createAsyncThunk
 } from '@reduxjs/toolkit';
+
 import { getRequest } from 'src/api/firebaseApi';
 import {Data, StoreData} from 'src/type';
+import {
+    endpoint_1, 
+    endpoint_2, 
+    } from 'src/api/firebaseApi';
 
 export const fetchData = createAsyncThunk<StoreData>(
     'data/fetchData',
     async function() {
-        const data_1 = await getRequest('documents1')
-        const data_2 = await getRequest('documents2')
-        return {
-            'data_1': data_1,
-            'data_2': data_2
-        }
+        const data_1 = await getRequest(endpoint_1)
+        const data_2 = await getRequest(endpoint_2)
+            return {
+                'data_1': data_1,
+                'data_2': data_2
+            }
     }
 )
 

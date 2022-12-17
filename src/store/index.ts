@@ -1,15 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit';
+
 import dataReducer from './slices/dataSlice';
 import searchDataSlice from './slices/searchDataSlice'
 
-const idProd = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === 'development'
 
 export const store = configureStore({
     reducer: {
         table: dataReducer,
         search: searchDataSlice,
     },
-    devTools: idProd
+    devTools: isDev
 })
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
