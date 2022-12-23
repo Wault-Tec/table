@@ -220,6 +220,7 @@ export const EnhancedTable: React.FC = () => {
     const data = useAppSelector((state) => state.table.data)
     const searchData = useAppSelector((state) => state.search.searchData)
 
+    //TODO: DRY
     const rows = useMemo(() => {
         const rows: Data[] = []
         for (let key in data) {
