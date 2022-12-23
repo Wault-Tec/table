@@ -18,11 +18,12 @@ import { Data } from 'src/type';
 import { createData } from 'src/components/Table/Table';
 
  export const Search: React.FC = () => {
-    const dispatch = useAppDispatch();
-    const [column, setColumn] = useState('');
-    const [text, setText] = useState<string | null>('');
+    const [column, setColumn] = useState<string>('')
+    const [text, setText] = useState<string | null>(null)
     const data = useAppSelector((state) => state.table.data)
+    const dispatch = useAppDispatch()
 
+    //TODO: DRY
     const rows = useMemo(() => {
         const rows: Data[] = []
         for (let key in data) {
@@ -32,31 +33,35 @@ import { createData } from 'src/components/Table/Table';
         }
         return rows
     }, [data])
-
+ 
     const columnOptions: string[] = []
-    if (column) {
-        rows.forEach((item) => {
-            const option = item[column as keyof Data].toString()
-            if(!columnOptions.includes(option)) {
-                columnOptions.push(option)
-            }
-        })
+    if (column && rows) {
+        if(column !== 'all') {
+            rows.forEach((item) => {
+                const option = item[column as keyof Data].toString()
+                if(!columnOptions.includes(option)) {
+                    columnOptions.push(option)
+                }
+            })
+        } else {
+            rows.forEach((item) => {
+                Object.entries(item).forEach((optionArr) => {
+                    const option: string = optionArr[1].toString();
+                    if ( 
+                            optionArr[0] !== 'id' && 
+                            !columnOptions.includes(option)
+                        ) 
+                    {
+                        columnOptions.push(option)
+                    }
+                })
+            })
+        }
     }
-    console.log('columnOptions', columnOptions)
-
-
-
-
-
-
+   
     const handleSelectChange = (event: SelectChangeEvent) => {
-        setText('');
+        setText(null);
         setColumn(event.target.value as string);
-    };
-
-    const handleInputChange = (event: any) => {
-        console.log('event.target.value', event.target.value)
-        setText(event.target.value);
     };
 
     useEffect(() => {
@@ -67,7 +72,6 @@ import { createData } from 'src/components/Table/Table';
             }))
         }
     },[column, text])
-    console.log('text', text)
    
     return (
         <Box sx={{ width: 400, ml: 'auto'}}>
@@ -90,29 +94,29 @@ import { createData } from 'src/components/Table/Table';
             <Box
                 component="form"
                 sx={{
-                    '& > :not(style)': { my: 1, width: 400 },
+                    '& > :not(style)': { py: 1, width: 400 },
                 }}
                 noValidate
                 autoComplete="off"
             >
-                {/* <TextField
+                <Autocomplete
+                    disablePortal
+                    clearOnBlur
+                    clearOnEscape
                     disabled={column === ''}
-                    id="outlined-name"
-                    label="Search"
+                    id="search-box"
+                    options={columnOptions}
                     value={text}
-                    onChange={handleInputChange}
-                /> */}
-                    <Autocomplete
-                        disablePortal
-                        disabled={column === ''}
-                        id="combo-box-demo"
-                        options={columnOptions}
-                        value={text}
-                        onChange={(event: any, text: string | null) => {
-                            setText(text);
-                          }}
-                        renderInput={(params) => <TextField {...params} label="Search" />}
-                    />
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault()
+                        }
+                    }}
+                    onChange={(e: any, newText: string | null) => {
+                        setText(newText);
+                    }}
+                    renderInput={(params) => <TextField {...params} label="Search" />}
+                />
             </Box>
         </Box>
     );

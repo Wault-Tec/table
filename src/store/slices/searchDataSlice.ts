@@ -9,7 +9,7 @@ type InitialState = {
 const initialState: InitialState = {
     searchData: {
         column: null,
-        text: ''
+        text: null
     }
 }
 

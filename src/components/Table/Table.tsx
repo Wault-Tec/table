@@ -209,14 +209,14 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
 }
 
 export const EnhancedTable: React.FC = () => {
-    const [order, setOrder] = useState<Order>('asc');
-    const [orderBy, setOrderBy] = useState<keyof Data>('delivery_date');
-    const [selected, setSelected] = useState<string[]>([]);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [sortRows, setSortRows] = useState<Data[]>([]);
-    const [sortRowsBySearch, setSortRowsBySearch] = useState<Data[]>([]);
-    const dispatch = useAppDispatch();
+    const [order, setOrder] = useState<Order>('asc')
+    const [orderBy, setOrderBy] = useState<keyof Data>('delivery_date')
+    const [selected, setSelected] = useState<string[]>([])
+    const [page, setPage] = useState(0)
+    const [rowsPerPage, setRowsPerPage] = useState(5)
+    const [sortRows, setSortRows] = useState<Data[]>([])
+    const [sortRowsBySearch, setSortRowsBySearch] = useState<Data[]>([])
+    const dispatch = useAppDispatch()
     const data = useAppSelector((state) => state.table.data)
     const searchData = useAppSelector((state) => state.search.searchData)
 
@@ -229,7 +229,6 @@ export const EnhancedTable: React.FC = () => {
         }
         return rows
     }, [data, rowsPerPage])
-
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
@@ -304,14 +303,30 @@ export const EnhancedTable: React.FC = () => {
         const column = searchData.column as keyof Data
         const text = searchData.text as string
 
-        if (!searchData.column && searchData.text === null) {
+        if (!searchData.column || searchData.text === null) {
             setSortRows(getSortRowsByTable(rows))
         } else {
-            if (searchData.column !== 'all' && text !== null) {
-                sortArr = rows.filter((item) => item[column].toString().toLowerCase().includes(text.toLowerCase()))
+            if (searchData.column !== 'all') {
+                sortArr = rows.filter((item) => 
+                    item[column]
+                        .toString()
+                        .toLowerCase()
+                        .includes(text.toLowerCase()))
             } else {
                 sortArr = rows.filter((item) => {
-                    return Object.values(item).slice(1).toString().toLowerCase().includes(text.toLowerCase())
+                    let key: keyof Data
+                    for(key in item) {
+                        if (
+                                key !== 'id' && 
+                                item[key]
+                                    .toString()
+                                    .toLowerCase()
+                                    .includes(text.toLowerCase())
+                            ) 
+                        {
+                            return true
+                        }
+                    }
                 })
             }
             setSortRows(getSortRowsByTable(sortArr))
