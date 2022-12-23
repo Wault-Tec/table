@@ -37,7 +37,7 @@ import { AlertDialog } from 'src/components/AlertDialog/AlertDialog';
 import {setRequest} from 'src/api/firebaseApi';
 import {fetchData} from 'src/store/slices/dataSlice';
 
-function createData(data: ServerData): Data {
+export const createData = (data: ServerData): Data => {
     const total = data.sum + data.qty;
     return ({...data, total})
 }
@@ -301,16 +301,17 @@ export const EnhancedTable: React.FC = () => {
 
     useEffect(() => {
         let sortArr: Data[]
+        const column = searchData.column as keyof Data
+        const text = searchData.text as string
 
-        if (!searchData.column && !searchData.text) {
+        if (!searchData.column && searchData.text === null) {
             setSortRows(getSortRowsByTable(rows))
         } else {
-            if (searchData.column !== 'all') {
-                const column = searchData.column as keyof Data
-                sortArr = rows.filter((item) => item[column].toString().toLowerCase().includes(searchData.text.toLowerCase()))
+            if (searchData.column !== 'all' && text !== null) {
+                sortArr = rows.filter((item) => item[column].toString().toLowerCase().includes(text.toLowerCase()))
             } else {
                 sortArr = rows.filter((item) => {
-                    return Object.values(item).slice(1).toString().toLowerCase().includes(searchData.text.toLowerCase())
+                    return Object.values(item).slice(1).toString().toLowerCase().includes(text.toLowerCase())
                 })
             }
             setSortRows(getSortRowsByTable(sortArr))
