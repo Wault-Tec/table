@@ -335,6 +335,13 @@ export const EnhancedTable: React.FC = () => {
         }
     }, [searchData, rows, page, order, orderBy])
 
+    const getStyle = (cell: string | number): object | undefined => {
+        const text = searchData.text as string
+        if(text && text === cell.toString()) {
+            return {color: '#1976d2', fontWeight: 'bold'}
+        } 
+    }
+
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
@@ -380,16 +387,31 @@ export const EnhancedTable: React.FC = () => {
                                             component="th"
                                             id={labelId}
                                             scope="row"
+                                            sx={getStyle(row.name)}
                                         >
                                             {row.name}
                                         </TableCell>
-                                        <TableCell align="left">{row.status}</TableCell>
-                                        <TableCell align="left">{row.sum}</TableCell>
-                                        <TableCell align="left">{row.qty}</TableCell>
-                                        <TableCell align="left">{row.volume}</TableCell>
-                                        <TableCell align="left">{row.delivery_date}</TableCell>
-                                        <TableCell align="left">{row.currency}</TableCell>
-                                        <TableCell align="left">{row.total} {row.currency}</TableCell>
+                                        <TableCell align="left" sx={getStyle(row.status)}>
+                                            {row.status}
+                                        </TableCell>
+                                        <TableCell align="left" sx={getStyle(row.sum)}>
+                                            {row.sum}
+                                        </TableCell>
+                                        <TableCell align="left" sx={getStyle(row.qty)}>
+                                            {row.qty}
+                                        </TableCell>
+                                        <TableCell align="left" sx={getStyle(row.volume)}>
+                                            {row.volume}
+                                        </TableCell>
+                                        <TableCell align="left" sx={getStyle(row.delivery_date)}>
+                                            {row.delivery_date}
+                                        </TableCell>
+                                        <TableCell align="left" sx={getStyle(row.currency)}>
+                                            {row.currency}
+                                        </TableCell>
+                                        <TableCell align="left" sx={getStyle(row.total)}>
+                                            {row.total} {row.currency}
+                                        </TableCell>
                                     </TableRow>
                                 );
                             })}
