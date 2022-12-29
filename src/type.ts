@@ -19,7 +19,7 @@ export interface StoreData {
 
 export interface SearchData {
     column: keyof Data | null | 'all',
-    text: string | null,
+    text: string,
 }
 
 export interface HeadCell {

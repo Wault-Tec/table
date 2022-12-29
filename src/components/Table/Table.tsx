@@ -304,7 +304,7 @@ export const EnhancedTable: React.FC = () => {
         const column = searchData.column as keyof Data
         const text = searchData.text as string
 
-        if (!searchData.column || searchData.text === null) {
+        if (!searchData.column || !searchData.text) {
             setSortRows(getSortRowsByTable(rows))
         } else {
             if (searchData.column !== 'all') {
@@ -337,7 +337,8 @@ export const EnhancedTable: React.FC = () => {
 
     const getStyle = (cell: string | number): object | undefined => {
         const text = searchData.text as string
-        if(text && text === cell.toString()) {
+        console.log(text, cell)
+        if(text && text.includes(cell.toString())) {
             return {color: '#1976d2', fontWeight: 'bold'}
         } 
     }

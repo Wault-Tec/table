@@ -19,7 +19,7 @@ import { createData } from 'src/components/Table/Table';
 
  export const Search: React.FC = () => {
     const [column, setColumn] = useState<string>('')
-    const [text, setText] = useState<string | null>(null)
+    const [text, setText] = useState<string>('')
     const data = useAppSelector((state) => state.table.data)
     const dispatch = useAppDispatch()
 
@@ -35,7 +35,7 @@ import { createData } from 'src/components/Table/Table';
     }, [data])
  
     const columnOptions: string[] = []
-    if (column && rows) {
+    if (column) {
         if(column !== 'all') {
             rows.forEach((item) => {
                 const option = item[column as keyof Data].toString()
@@ -60,7 +60,7 @@ import { createData } from 'src/components/Table/Table';
     }
    
     const handleSelectChange = (event: SelectChangeEvent) => {
-        setText(null);
+        setText('');
         setColumn(event.target.value as string);
     };
 
@@ -103,18 +103,19 @@ import { createData } from 'src/components/Table/Table';
                     disablePortal
                     clearOnBlur
                     clearOnEscape
+                    freeSolo
                     disabled={column === ''}
                     id="search-box"
                     options={columnOptions}
-                    value={text}
+                    inputValue={text}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault()
                         }
                     }}
-                    onChange={(e: any, newText: string | null) => {
-                        setText(newText);
-                    }}
+                    onInputChange={(e: any, newValue: string) => {
+                        setText(newValue);
+                      }}
                     renderInput={(params) => <TextField {...params} label="Search" />}
                 />
             </Box>
